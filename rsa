@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+
+# RSA Factoring Challenge
+
+factorize() {
+    local num=$1
+    local factors=($(factor "$num" | cut -d ' ' -f 2-))
+    if (( ${#factors[@]} != 2 )); then
+        local product=1
+        for factor in "${factors[@]}"; do
+            product=$((product * factor))
+        done
+        echo "${num}:${factors[*]}:${product}"
+    else
+        echo "${num}:${factors[0]}:${factors[1]}"
+    fi
+}
+
+if (( $# != 1 )); then
+    echo "Usage: rsa <file>" >&2
+    exit 1
+fi
+
+while read num; do
+    factor=$(factorize "$num")
+    num1=$(echo "$factor" | cut -d ':' -f 2)
+    num2=$(echo "$factor" | cut -d ':' -f 3)
+    if (( num2 > num1 )); then
+        echo "${num}=${num2}*${num1}"
+    else
+        echo "${num}=${num1}*${num2}"
+    fi
+done < "$1"
