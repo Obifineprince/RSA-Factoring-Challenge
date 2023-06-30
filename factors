@@ -1,41 +1,33 @@
 #!/usr/bin/env bash
 
-#include <stdio.h>
+# A factors challenge
 
-/**
- * main - entry point of the program
- *
- * Return: 0 on success, 1 on error
- */
-int main(void)
-{
-    FILE *fp;
-    char filename[100];
-    int num;
-
-    printf("Enter the filename: ");
-    scanf("%s", filename);
-
-    fp = fopen(filename, "r");
-    if (fp == NULL)
-    {
-        printf("Error: could not open file\n");
-        return (1);
-    }
-
-    while (fscanf(fp, "%d", &num) != EOF)
-    {
-        for (int i = 2; i <= num / 2; i++)
-        {
-            if (num % i == 0)
-            {
-                printf("%d=%d*%d\n", num, i, num / i);
-                break;
-            }
-        }
-    }
-
-    fclose(fp);
-    return (0);
+factorize() {
+    local num=$1
+    local p=2
+    local q=$((num / p))
+    while ((p <= q)); do
+        if ((SECONDS - start >= 5)); then
+            echo "Error: time limit exceeded" >&2
+            return 1
+        fi
+        if ((num % p == 0)); then
+            echo "${num}=${p}*${q}"
+            return 0
+        fi
+        ((p++))
+        q=$((num / p))
+    done
+    echo "${num} is prime"
+    return 0
 }
 
+if (( $# != 1 )); then
+    echo "Usage: factors <file>" >&2
+    exit 1
+fi
+
+while read num; do
+    start=$SECONDS
+    factorize "$num"
+done < "$1"
